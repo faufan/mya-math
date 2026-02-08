@@ -29,76 +29,83 @@
             background: var(--bg-gradient); 
             background-attachment: fixed;
             margin: 0; 
-            /* Use dynamic viewport height to respect browser bars */
-            height: 100vh; height: 100dvh; 
-            display: flex; flex-direction: column; align-items: center;
             padding: 10px;
+            /* CRITICAL FIX: Use 100dvh to perfectly fit the visible screen */
+            height: 100vh; height: 100dvh; 
+            display: flex; flex-direction: column; 
             overflow: hidden; 
             touch-action: manipulation;
         }
 
-        /* --- Clouds --- */
-        body::before { content: "☁️"; position: absolute; top: 5%; left: 5%; font-size: 3rem; opacity: 0.8; z-index: -1; animation: float 6s ease-in-out infinite; }
-        body::after { content: "🦄"; position: absolute; bottom: 5%; right: 5%; font-size: 4rem; opacity: 0.8; z-index: -1; animation: float 5s ease-in-out infinite reverse; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        /* --- Clouds (Hidden on landscape to save space) --- */
+        body::before { content: "☁️"; position: absolute; top: 5%; left: 5%; font-size: 3rem; opacity: 0.5; z-index: -1; }
+        body::after { content: "🦄"; position: absolute; bottom: 5%; right: 5%; font-size: 4rem; opacity: 0.5; z-index: -1; }
+        @media (max-height: 600px) { body::before, body::after { display: none; } }
 
-        /* --- Main Card Layout --- */
+        /* --- Main Layout --- */
+        /* The Card takes up all available space above the keypad */
         .main-card {
             background: var(--card-bg); 
             border-radius: 20px; 
             border: 3px solid #fff;
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
             width: 100%; max-width: 900px; 
-            /* This flex:1 makes the card fill available space, but not overflow */
-            flex: 1; 
-            min-height: 0; 
+            margin: 0 auto 10px auto;
             display: flex; flex-direction: column; 
-            margin-bottom: 10px;
+            /* FLEX: 1 makes this grow/shrink to fit exactly */
+            flex: 1; 
+            min-height: 0; /* Allows shrinking */
             backdrop-filter: blur(10px);
         }
 
-        /* --- Top Bar (Header) --- */
+        /* --- Header --- */
         .top-bar { 
-            padding: 8px 15px; 
+            padding: 5px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
-            flex-shrink: 0; /* Never shrink this */
+            flex-shrink: 0;
+            height: 50px;
         }
-        .timer-val { font-size: 2.2rem; font-weight: 700; color: var(--text-main); line-height: 1; }
-        .icon-btn { background: white; border: 2px solid #e9d5ff; font-size: 1.4rem; padding: 5px 10px; border-radius: 12px; cursor: pointer; }
+        .timer-val { font-size: 2rem; font-weight: 700; color: var(--text-main); line-height: 1; }
+        .icon-btn { background: white; border: 2px solid #e9d5ff; font-size: 1.2rem; padding: 4px 8px; border-radius: 10px; cursor: pointer; }
         
-        .progress-container { width: 100%; padding: 0 15px; margin-top: 5px; flex-shrink: 0; }
-        .progress-track { height: 8px; background: #f3e8ff; border-radius: 4px; overflow: hidden; border: 1px solid #fff; }
+        .progress-container { width: 100%; padding: 0 15px; flex-shrink: 0; }
+        .progress-track { height: 6px; background: #f3e8ff; border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(to right, #f472b6, #c084fc); width: 100%; transition: width 0.2s linear; }
 
-        /* --- The Grid Area (Scrollable) --- */
+        /* --- The Grid Area --- */
         .grid-wrapper { 
-            padding: 10px; 
-            overflow-y: auto; /* SCROLL HERE ONLY */
-            flex: 1; 
+            flex: 1; /* Take all remaining space in the card */
+            overflow: auto; /* Scroll if absolutely necessary */
             display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            /* Center vertically if grid is small */
             justify-content: center; 
+            align-items: center; /* Center grid in the middle */
+            padding: 10px;
         }
 
-        /* Table Styles - FORCED SQUARES */
         table { 
-            border-collapse: separate; border-spacing: 4px; 
-            table-layout: fixed; 
-            width: auto; /* Don't stretch width */
+            border-collapse: separate; 
+            border-spacing: 4px; 
+            /* Do not set width 100% so single cells don't stretch */
+            width: auto; 
         }
         
-        /* Fixed dimensions create squares */
+        /* THE MAGIC FIX: Sizing based on Viewport Height (vh) */
         th, td { 
-            width: 55px; height: 55px; 
+            /* Size is 8% of screen height. This scales perfectly on tablets */
+            height: 8vh; 
+            width: 8vh;
+            /* Caps to ensure they don't get too big on desktop */
+            max-height: 60px; max-width: 60px;
+            min-height: 40px; min-width: 40px;
+            
             text-align: center; font-weight: 700; 
             border: 2px solid #f3e8ff; background: white;
-            box-sizing: border-box;
+            /* FORCE SQUARE SHAPE */
+            aspect-ratio: 1 / 1; 
         }
         
         th { background: var(--header-bg); color: white; border-radius: 8px; font-size: 1.1rem; }
-        td { border-radius: 10px; font-size: 1.4rem; color: var(--text-main); }
+        td { border-radius: 10px; font-size: 1.5rem; color: var(--text-main); }
         td:first-child { background: #d8b4fe; color: white; }
         
         .active-cell { background-color: #fce7f3 !important; border-color: #f472b6; box-shadow: 0 0 0 3px #f472b6; transform: scale(1.05); z-index: 5; }
@@ -109,13 +116,14 @@
         /* --- Keypad (Pinned to Bottom) --- */
         .keypad-container { 
             width: 100%; max-width: 900px; 
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; 
-            flex-shrink: 0; /* Don't shrink */
+            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; 
+            flex-shrink: 0; /* NEVER SHRINK THIS */
             padding-bottom: env(safe-area-inset-bottom);
         }
         .key { 
             background: white; border: 2px solid #e9d5ff; border-radius: 12px; 
-            height: 55px; 
+            height: 55px; /* Standard height */
             font-size: 1.4rem; font-weight: 700; color: var(--text-main); 
             box-shadow: 0 4px 0 #e9d5ff; cursor: pointer; 
         }
@@ -131,21 +139,20 @@
         #setup-screen .chip { width: 45px; height: 45px; border-radius: 50%; background: white; border: 3px solid #e9d5ff; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--secondary); margin: 3px; cursor: pointer; }
         #setup-screen input:checked + .chip { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* --- TABLET/LANDSCAPE MODE TWEAKS --- */
-        /* If the screen is short (landscape tablet), shrink things to fit */
+        /* --- LANDSCAPE TABLET MODE (The Fix) --- */
+        /* If screen height is small (like iPad landscape), shrink buttons so grid fits */
         @media (max-height: 600px) {
             body { padding: 5px; }
             .main-card { margin-bottom: 5px; border-width: 2px; }
-            .timer-val { font-size: 1.8rem; }
-            .icon-btn { font-size: 1.1rem; padding: 4px 8px; }
-            .keypad-container { gap: 4px; }
-            .key { height: 40px; font-size: 1.1rem; box-shadow: 0 2px 0 #e9d5ff; border-radius: 8px; }
+            .timer-val { font-size: 1.5rem; }
+            .top-bar { height: 40px; padding: 2px 10px; }
             
-            /* Slightly smaller grid cells on short screens */
-            th, td { width: 45px; height: 45px; font-size: 1.1rem; }
+            /* Shrink keypad significantly */
+            .keypad-container { gap: 5px; }
+            .key { height: 45px; font-size: 1.2rem; border-radius: 8px; box-shadow: 0 2px 0 #e9d5ff; }
             
-            /* Hide decoration */
-            body::before, body::after { display: none; }
+            /* Squares scale automatically due to vh units, but we can tweak text size */
+            td { font-size: 1.2rem; }
         }
 
         /* --- Overlays --- */
