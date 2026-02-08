@@ -31,7 +31,7 @@
             background-attachment: fixed;
             margin: 0; 
             /* FIX 1: Add padding for safe areas (notch/home bar) */
-            padding: 10px 10px env(safe-area-inset-bottom) 10px;
+            padding: 10px 10px max(10px, env(safe-area-inset-bottom)) 10px;
             display: flex; flex-direction: column; align-items: center;
             height: 100vh; height: 100dvh; 
             overflow: hidden; touch-action: manipulation;
@@ -56,7 +56,7 @@
             width: 100%; max-width: 900px; 
             display: flex; flex-direction: column; 
             overflow: hidden; 
-            /* FIX 2: Added margin bottom to push away from keypad */
+            /* FIX 2: Give space between card and keypad */
             margin-bottom: 15px; 
             flex: 1; min-height: 0;
             backdrop-filter: blur(10px);
@@ -160,25 +160,26 @@
         /* --- Grid --- */
         .grid-wrapper { 
             padding: 8px 15px; 
-            overflow: auto; /* Allow scrolling if really needed, but mostly fitted */
+            overflow: auto; 
             flex: 1; 
             display: flex; 
             flex-direction: column;
-            justify-content: center; /* FIX: Center the grid vertically */
+            justify-content: center; /* FIX: Centers the grid vertically */
             min-height: 0;
         }
         table { 
             border-collapse: separate; border-spacing: 3px; 
             width: 100%; 
-            /* FIX: Removed height:100% so it doesn't stretch */
             table-layout: fixed;
-            margin: auto; /* Center horizontal */
+            /* FIX: Prevents stretching by auto-sizing height */
+            height: auto; 
+            margin: auto;
         }
         
         th { 
             background: var(--header-bg); color: white; font-weight: 700; 
             font-size: 1.1rem; 
-            height: 45px; /* FIX: Fixed height */
+            height: 45px; /* Fixed Header Height */
             border-radius: 8px;
             border: 2px solid white; box-shadow: 0 2px 0 rgba(0,0,0,0.1);
         }
@@ -187,7 +188,7 @@
             border: 2px solid #f3e8ff; border-radius: 10px;
             text-align: center; font-size: 1.4rem; font-weight: 700; color: var(--text-main); 
             background: white; box-shadow: inset 0 -3px 0 #f3e8ff;
-            height: 55px; /* FIX: Fixed height so they stay square-ish */
+            height: 55px; /* Fixed Cell Height */
         }
         td:first-child { 
             background: #d8b4fe; color: white; border-color: #c084fc; 
@@ -209,8 +210,8 @@
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; 
             padding: 5px; box-sizing: border-box; 
             flex-shrink: 0;
-            /* FIX: Add extra padding at bottom for nav bar */
-            padding-bottom: 25px; 
+            /* FIX: Lift the buttons up away from the bottom bar */
+            padding-bottom: 25px;
         }
         .key { 
             background: white; border: 2px solid #e9d5ff; border-radius: 15px; 
