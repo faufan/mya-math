@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mya-math-v2';
+const CACHE_NAME = 'mya-math-v4';
 const ASSETS = [
   './',
   './index.html',
