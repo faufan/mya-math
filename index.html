@@ -30,7 +30,6 @@
             background-attachment: fixed;
             margin: 0; 
             padding: 10px;
-            /* CRITICAL FIX: Use 100dvh to perfectly fit the visible screen */
             height: 100vh; height: 100dvh; 
             display: flex; flex-direction: column; 
             overflow: hidden; 
@@ -43,7 +42,6 @@
         @media (max-height: 600px) { body::before, body::after { display: none; } }
 
         /* --- Main Layout --- */
-        /* The Card takes up all available space above the keypad */
         .main-card {
             background: var(--card-bg); 
             border-radius: 20px; 
@@ -52,9 +50,8 @@
             width: 100%; max-width: 900px; 
             margin: 0 auto 10px auto;
             display: flex; flex-direction: column; 
-            /* FLEX: 1 makes this grow/shrink to fit exactly */
             flex: 1; 
-            min-height: 0; /* Allows shrinking */
+            min-height: 0; 
             backdrop-filter: blur(10px);
         }
 
@@ -74,41 +71,36 @@
 
         /* --- The Grid Area --- */
         .grid-wrapper { 
-            flex: 1; /* Take all remaining space in the card */
-            overflow: auto; /* Scroll if absolutely necessary */
+            flex: 1; 
+            overflow: auto; 
             display: flex; 
             justify-content: center; 
-            align-items: center; /* Center grid in the middle */
+            align-items: center; /* This centers the grid vertically! */
             padding: 10px;
         }
 
         table { 
             border-collapse: separate; 
-            border-spacing: 4px; 
-            /* Do not set width 100% so single cells don't stretch */
-            width: auto; 
+            border-spacing: 6px; 
+            width: auto; /* Stops stretching */
+            height: auto; /* Stops stretching */
         }
         
-        /* THE MAGIC FIX: Sizing based on Viewport Height (vh) */
+        /* STRICT SQUARE SIZING */
         th, td { 
-            /* Size is 8% of screen height. This scales perfectly on tablets */
-            height: 8vh; 
-            width: 8vh;
-            /* Caps to ensure they don't get too big on desktop */
-            max-height: 60px; max-width: 60px;
-            min-height: 40px; min-width: 40px;
+            /* Fixed sizes prevent the "rectangle" look */
+            width: 60px; 
+            height: 60px;
             
             text-align: center; font-weight: 700; 
             border: 2px solid #f3e8ff; background: white;
-            /* FORCE SQUARE SHAPE */
-            aspect-ratio: 1 / 1; 
         }
         
-        th { background: var(--header-bg); color: white; border-radius: 8px; font-size: 1.1rem; }
+        th { background: var(--header-bg); color: white; border-radius: 8px; font-size: 1.1rem; height: 45px; }
         td { border-radius: 10px; font-size: 1.5rem; color: var(--text-main); }
         td:first-child { background: #d8b4fe; color: white; }
         
-        .active-cell { background-color: #fce7f3 !important; border-color: #f472b6; box-shadow: 0 0 0 3px #f472b6; transform: scale(1.05); z-index: 5; }
+        .active-cell { background-color: #fce7f3 !important; border-color: #f472b6; box-shadow: 0 0 0 3px #f472b6; transform: scale(1.1); z-index: 5; }
         .correct { background-color: #4ade80 !important; border-color: #22c55e; color: white; }
         .incorrect { background-color: #fb7185 !important; border-color: #e11d48; color: white; animation: shake 0.3s; }
         .skipped { background-color: #fef08a !important; border-color: #eab308; color: #854d0e; }
@@ -118,12 +110,13 @@
             width: 100%; max-width: 900px; 
             margin: 0 auto;
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; 
-            flex-shrink: 0; /* NEVER SHRINK THIS */
-            padding-bottom: env(safe-area-inset-bottom);
+            flex-shrink: 0; 
+            /* Extra padding to lift it above tablet home bar */
+            padding-bottom: 20px; 
         }
         .key { 
             background: white; border: 2px solid #e9d5ff; border-radius: 12px; 
-            height: 55px; /* Standard height */
+            height: 55px; 
             font-size: 1.4rem; font-weight: 700; color: var(--text-main); 
             box-shadow: 0 4px 0 #e9d5ff; cursor: pointer; 
         }
@@ -139,8 +132,7 @@
         #setup-screen .chip { width: 45px; height: 45px; border-radius: 50%; background: white; border: 3px solid #e9d5ff; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--secondary); margin: 3px; cursor: pointer; }
         #setup-screen input:checked + .chip { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* --- LANDSCAPE TABLET MODE (The Fix) --- */
-        /* If screen height is small (like iPad landscape), shrink buttons so grid fits */
+        /* --- Tablet Landscape Tweaks --- */
         @media (max-height: 600px) {
             body { padding: 5px; }
             .main-card { margin-bottom: 5px; border-width: 2px; }
@@ -148,11 +140,11 @@
             .top-bar { height: 40px; padding: 2px 10px; }
             
             /* Shrink keypad significantly */
-            .keypad-container { gap: 5px; }
+            .keypad-container { gap: 5px; padding-bottom: 10px; }
             .key { height: 45px; font-size: 1.2rem; border-radius: 8px; box-shadow: 0 2px 0 #e9d5ff; }
             
-            /* Squares scale automatically due to vh units, but we can tweak text size */
-            td { font-size: 1.2rem; }
+            /* Shrink squares slightly for very short screens */
+            th, td { width: 45px; height: 45px; font-size: 1.2rem; }
         }
 
         /* --- Overlays --- */
