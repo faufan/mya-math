@@ -12,15 +12,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --primary: #d946ef; /* Hot Pink */
-            --secondary: #8b5cf6; /* Purple */
-            --accent: #0ea5e9; /* Sky Blue */
-            --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --primary: #d946ef; 
+            --secondary: #8b5cf6; 
             --header-bg: #c084fc;
             --text-main: #4c1d95;
             --del-bg: #fda4af; --del-text: #881337;
             --skip-bg: #fde047; --skip-text: #854d0e;
+            --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
         }
         
         * { box-sizing: border-box; }
@@ -30,251 +29,148 @@
             background: var(--bg-gradient); 
             background-attachment: fixed;
             margin: 0; 
-            /* FIX 1: Add padding for safe areas (notch/home bar) */
-            padding: 10px 10px max(10px, env(safe-area-inset-bottom)) 10px;
-            display: flex; flex-direction: column; align-items: center;
+            /* Use dynamic viewport height (dvh) to fit exactly within the browser window */
             height: 100vh; height: 100dvh; 
-            overflow: hidden; touch-action: manipulation;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 10px;
+            overflow: hidden; /* Prevent body scroll */
+            touch-action: manipulation;
         }
-        
-        /* --- Clouds Background Decoration --- */
-        body::before {
-            content: "☁️"; position: absolute; top: 5%; left: 5%; font-size: 3rem; opacity: 0.8; z-index: -1; animation: float 6s ease-in-out infinite;
-        }
-        body::after {
-            content: "🦄"; position: absolute; bottom: 5%; right: 5%; font-size: 4rem; opacity: 0.8; z-index: -1; animation: float 5s ease-in-out infinite reverse;
-        }
-        
+
+        /* --- Clouds --- */
+        body::before { content: "☁️"; position: absolute; top: 5%; left: 5%; font-size: 3rem; opacity: 0.8; z-index: -1; animation: float 6s ease-in-out infinite; }
+        body::after { content: "🦄"; position: absolute; bottom: 5%; right: 5%; font-size: 4rem; opacity: 0.8; z-index: -1; animation: float 5s ease-in-out infinite reverse; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
 
-        /* --- Layout --- */
+        /* --- Main Card (The Grid Area) --- */
         .main-card {
             background: var(--card-bg); 
-            border-radius: 24px; 
-            border: 4px solid #fff;
-            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.2);
+            border-radius: 20px; 
+            border: 3px solid #fff;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
             width: 100%; max-width: 900px; 
+            /* FLEX MAGIC: This allows the card to shrink if space is tight */
+            flex: 1; 
+            min-height: 0; 
             display: flex; flex-direction: column; 
-            overflow: hidden; 
-            /* FIX 2: Give space between card and keypad */
-            margin-bottom: 15px; 
-            flex: 1; min-height: 0;
+            margin-bottom: 10px;
             backdrop-filter: blur(10px);
         }
 
-        /* --- Glitter Text Effect --- */
-        .glitter-text {
-            background: linear-gradient(45deg, #ff00cc, #3333ff, #ff00cc);
-            background-size: 200% auto;
-            color: #000;
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 2s linear infinite;
-        }
-        @keyframes shine { to { background-position: 200% center; } }
+        /* --- Setup Screen specific --- */
+        #setup-screen .mode-select-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        #setup-screen .mode-card { border: 3px solid #e9d5ff; border-radius: 15px; padding: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: white; }
+        #setup-screen .mode-card.selected { border-color: var(--primary); background: #fdf4ff; }
+        #setup-screen .chip { width: 45px; height: 45px; border-radius: 50%; background: white; border: 3px solid #e9d5ff; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--secondary); margin: 3px; cursor: pointer; }
+        #setup-screen input:checked + .chip { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* --- Setup Screen Styles --- */
-        .mode-select-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-
-        .mode-card {
-            border: 3px solid #e9d5ff; border-radius: 20px; padding: 12px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; transition: all 0.2s; background: white;
-            box-shadow: 0 4px 0 #e9d5ff;
+        /* --- Quiz Header --- */
+        .top-bar { 
+            padding: 8px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            flex-shrink: 0; /* Never shrink the header */
         }
-        .mode-card:active { transform: translateY(4px); box-shadow: none; }
+        .timer-val { font-size: 2.5rem; font-weight: 700; color: var(--text-main); line-height: 1; }
+        .icon-btn { background: white; border: 2px solid #e9d5ff; font-size: 1.5rem; padding: 5px 10px; border-radius: 12px; cursor: pointer; }
         
-        .mode-card.selected {
-            border-color: var(--primary); background: #fdf4ff;
-            box-shadow: 0 4px 0 var(--primary);
-        }
-        
-        .mode-card.disabled { opacity: 0.6; background: #f3f4f6; box-shadow: none; border-color: #d1d5db; }
-
-        .mode-label { font-weight: 700; color: var(--text-main); font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
-        
-        .radio-circle {
-            width: 24px; height: 24px; border-radius: 50%; border: 3px solid #d8b4fe;
-            display: flex; align-items: center; justify-content: center; background: white;
-        }
-        .mode-card.selected .radio-circle { border-color: var(--primary); }
-        .radio-dot { width: 12px; height: 12px; background: var(--primary); border-radius: 50%; display: none; }
-        .mode-card.selected .radio-dot { display: block; }
-
-        .time-input {
-            width: 70px; padding: 8px; border: 3px solid #d8b4fe; border-radius: 12px;
-            font-size: 1.3rem; font-weight: 700; text-align: center; color: var(--text-main);
-            outline: none; font-family: 'Fredoka', sans-serif;
-        }
-        .mode-card.selected .time-input { border-color: var(--primary); background: white; }
-
-        /* --- Setup Chips --- */
-        .chip-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-        .chip { 
-            width: 45px; height: 45px; border-radius: 50%; 
-            background: white; color: var(--secondary); font-weight: 700; font-size: 1.2rem;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s; border: 3px solid #e9d5ff;
-            box-shadow: 0 3px 0 #e9d5ff;
-        }
-        input:checked + .chip { 
-            background: var(--primary); color: white; border-color: var(--primary); 
-            transform: translateY(3px); box-shadow: none;
-        }
-
-        /* --- Buttons --- */
-        .btn-primary {
-            background: linear-gradient(to right, #d946ef, #8b5cf6); 
-            color: white; border: none; padding: 15px;
-            width: 100%; border-radius: 20px; font-weight: 700; font-size: 1.5rem;
-            cursor: pointer; margin-top: auto; font-family: 'Fredoka', sans-serif;
-            box-shadow: 0 6px 0 #7c3aed; transition: all 0.1s;
-            text-shadow: 0 2px 2px rgba(0,0,0,0.2);
-        }
-        .btn-primary:active { transform: translateY(6px); box-shadow: none; }
-
-        .btn-text {
-            background: none; border: none; color: var(--secondary); 
-            font-weight: 700; cursor: pointer; text-decoration: underline; 
-            margin-top: 5px; font-size: 1rem; font-family: 'Fredoka', sans-serif;
-        }
-
-        /* --- Header / Timer --- */
-        .top-bar { padding: 10px 15px 0 15px; display: flex; justify-content: space-between; align-items: center; }
-        .timer-label { font-size: 0.8rem; font-weight: 700; color: #a855f7; letter-spacing: 1px; text-transform: uppercase; }
-        .timer-val { font-size: 3rem; font-weight: 700; color: var(--text-main); line-height: 1; text-shadow: 2px 2px 0px #e9d5ff; }
-        
-        .icon-btn { 
-            background: white; border: 2px solid #e9d5ff; font-size: 1.6rem; 
-            cursor: pointer; color: var(--secondary); padding: 6px 10px; 
-            border-radius: 12px; box-shadow: 0 3px 0 #e9d5ff; transition: all 0.1s;
-        }
-        .icon-btn:active { transform: translateY(3px); box-shadow: none; }
-
-        /* --- Progress Bar --- */
-        .progress-container { width: 100%; padding: 0 15px; margin-top: 8px; box-sizing: border-box; }
-        .progress-track { height: 10px; background: #f3e8ff; border-radius: 6px; overflow: hidden; border: 2px solid #fff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .progress-container { width: 100%; padding: 0 15px; margin-top: 5px; flex-shrink: 0; }
+        .progress-track { height: 8px; background: #f3e8ff; border-radius: 4px; overflow: hidden; border: 1px solid #fff; }
         .progress-fill { height: 100%; background: linear-gradient(to right, #f472b6, #c084fc); width: 100%; transition: width 0.2s linear; }
 
-        /* --- Grid --- */
+        /* --- The Grid --- */
         .grid-wrapper { 
-            padding: 8px 15px; 
-            overflow: auto; 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; /* FIX: Centers the grid vertically */
-            min-height: 0;
+            padding: 10px; 
+            overflow: auto; /* Scroll ONLY inside here if needed */
+            flex: 1; /* Take up remaining space */
+            display: flex; flex-direction: column; justify-content: center;
         }
         table { 
             border-collapse: separate; border-spacing: 3px; 
             width: 100%; 
-            table-layout: fixed;
-            /* FIX: Prevents stretching by auto-sizing height */
-            height: auto; 
-            margin: auto;
+            table-layout: fixed; 
+            margin: auto; 
+            height: auto; /* Don't stretch */
         }
+        th, td { border: 2px solid #f3e8ff; text-align: center; font-weight: 700; color: var(--text-main); background: white; }
+        th { background: var(--header-bg); color: white; height: 40px; border-radius: 6px; font-size: 1.1rem; }
+        td { height: 50px; border-radius: 8px; font-size: 1.3rem; }
+        td:first-child { background: #d8b4fe; color: white; }
         
-        th { 
-            background: var(--header-bg); color: white; font-weight: 700; 
-            font-size: 1.1rem; 
-            height: 45px; /* Fixed Header Height */
-            border-radius: 8px;
-            border: 2px solid white; box-shadow: 0 2px 0 rgba(0,0,0,0.1);
-        }
-        
-        td { 
-            border: 2px solid #f3e8ff; border-radius: 10px;
-            text-align: center; font-size: 1.4rem; font-weight: 700; color: var(--text-main); 
-            background: white; box-shadow: inset 0 -3px 0 #f3e8ff;
-            height: 55px; /* Fixed Cell Height */
-        }
-        td:first-child { 
-            background: #d8b4fe; color: white; border-color: #c084fc; 
-            box-shadow: inset 0 -3px 0 #a855f7; text-shadow: 0 1px 1px rgba(0,0,0,0.1);
-        }
-
-        .active-cell { 
-            box-shadow: 0 0 0 3px #f472b6 !important; 
-            background-color: #fce7f3 !important; 
-            transform: scale(1.05); border-color: #f472b6; z-index: 10;
-        }
-        .correct { color: white; background-color: #4ade80 !important; border-color: #22c55e; box-shadow: inset 0 -3px 0 #22c55e; }
-        .incorrect { color: white; background-color: #fb7185 !important; border-color: #e11d48; box-shadow: inset 0 -3px 0 #e11d48; animation: shake 0.3s; }
-        .skipped { background-color: #fef08a !important; color: #854d0e; border-color: #eab308; box-shadow: inset 0 -3px 0 #eab308; }
+        .active-cell { background-color: #fce7f3 !important; border-color: #f472b6; box-shadow: 0 0 0 3px #f472b6; transform: scale(1.02); z-index: 5; }
+        .correct { background-color: #4ade80 !important; border-color: #22c55e; color: white; }
+        .incorrect { background-color: #fb7185 !important; border-color: #e11d48; color: white; animation: shake 0.3s; }
+        .skipped { background-color: #fef08a !important; border-color: #eab308; color: #854d0e; }
 
         /* --- Keypad --- */
         .keypad-container { 
             width: 100%; max-width: 900px; 
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; 
-            padding: 5px; box-sizing: border-box; 
-            flex-shrink: 0;
-            /* FIX: Lift the buttons up away from the bottom bar */
-            padding-bottom: 25px;
+            /* This ensures the keypad never gets squashed */
+            flex-shrink: 0; 
+            padding-bottom: env(safe-area-inset-bottom);
         }
         .key { 
-            background: white; border: 2px solid #e9d5ff; border-radius: 15px; 
+            background: white; border: 2px solid #e9d5ff; border-radius: 12px; 
             height: 55px; 
             font-size: 1.4rem; font-weight: 700; color: var(--text-main); 
-            box-shadow: 0 4px 0 #e9d5ff; cursor: pointer; font-family: 'Fredoka', sans-serif;
+            box-shadow: 0 4px 0 #e9d5ff; cursor: pointer; 
         }
-        .key:active { transform: translateY(4px); box-shadow: none; }
-        .key.del { background: var(--del-bg); color: var(--del-text); border-color: #fda4af; box-shadow: 0 4px 0 #fb7185; }
-        .key.skip { background: var(--skip-bg); color: var(--skip-text); border-color: #fde047; box-shadow: 0 4px 0 #facc15; font-size: 1.1rem; }
-        .key.finish { 
-            grid-column: span 3; background: var(--primary); color: white; 
-            border: none; box-shadow: 0 4px 0 #a21caf; text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+        .key:active { transform: translateY(3px); box-shadow: none; }
+        .key.del { background: var(--del-bg); color: var(--del-text); border-color: #fda4af; }
+        .key.skip { background: var(--skip-bg); color: var(--skip-text); border-color: #fde047; }
+        .key.finish { grid-column: span 3; background: var(--primary); color: white; border: none; }
+
+        /* --- IMPORTANT: SHORT SCREEN MODE (Landscape Tablets) --- */
+        @media (max-height: 600px) {
+            body { padding: 5px; }
+            .main-card { margin-bottom: 5px; border-width: 2px; }
+            .timer-val { font-size: 2rem; }
+            .icon-btn { font-size: 1.2rem; padding: 4px 8px; }
+            th { height: 30px; font-size: 0.9rem; }
+            td { height: 35px; font-size: 1.1rem; }
+            .grid-wrapper { padding: 5px; }
+            
+            /* Make keys shorter so they fit */
+            .key { height: 40px; font-size: 1.1rem; border-radius: 8px; box-shadow: 0 2px 0 #e9d5ff; }
+            .key:active { transform: translateY(2px); }
+            
+            /* Hide the clouds in short mode to save processing/space */
+            body::before, body::after { display: none; }
         }
 
-        /* --- Overlays & Custom Modals --- */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(139, 92, 246, 0.4); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        
-        .modal { 
-            background: white; padding: 30px; border-radius: 30px; 
-            text-align: center; width: 90%; max-width: 350px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2); border: 5px solid #d8b4fe;
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .modal-title { font-size: 2rem; color: var(--text-main); margin: 0 0 10px 0; }
-        .modal-text { font-size: 1.2rem; color: #6b7280; margin-bottom: 20px; }
-
-        .btn-secondary { 
-            background: white; color: var(--text-main); border: 3px solid #e9d5ff; padding: 12px; 
-            width: 100%; border-radius: 15px; font-weight: 700; font-size: 1.1rem; 
-            margin-top: 10px; cursor: pointer; box-shadow: 0 4px 0 #e9d5ff; font-family: 'Fredoka', sans-serif;
-        }
-        .btn-secondary:active { transform: translateY(4px); box-shadow: none; }
+        /* --- Overlays --- */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(139, 92, 246, 0.4); backdrop-filter: blur(5px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        .modal { background: white; padding: 20px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; border: 4px solid #d8b4fe; }
+        .btn-primary { background: linear-gradient(to right, #d946ef, #8b5cf6); color: white; border: none; padding: 12px; width: 100%; border-radius: 12px; font-weight: 700; font-size: 1.2rem; cursor: pointer; margin-top: 10px; }
+        .btn-secondary { background: white; color: var(--text-main); border: 2px solid #e9d5ff; padding: 10px; width: 100%; border-radius: 12px; font-weight: 700; margin-top: 8px; cursor: pointer; }
         
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
 
-    <div id="setup-screen" class="main-card" style="padding: 30px; height: 100%; box-sizing: border-box; overflow-y: auto;">
-        <h1 class="glitter-text" style="margin-bottom:20px; font-size: 2.2rem; text-align: center;">🦄 Mya's Math 🦄</h1>
+    <div id="setup-screen" class="main-card" style="padding: 20px; height: 100%; box-sizing: border-box; overflow-y: auto; display:flex;">
+        <h1 style="color:var(--text-main); margin-bottom:15px; font-size: 1.8rem; text-align: center;">🦄 Mya's Math 🦄</h1>
         
-        <div style="margin-bottom: 25px;">
+        <div style="margin-bottom: 20px;">
             <div class="mode-select-container">
                 <div class="mode-card selected" id="card-total" onclick="selectMode('total')">
-                    <div class="mode-label"><div class="radio-circle"><div class="radio-dot"></div></div>Total Time Limit</div>
-                    <div class="time-input-group"><input type="number" id="input-total" class="time-input" value="120"></div>
+                    <div style="font-weight:700; color:var(--text-main);">Total Time Limit</div>
+                    <input type="number" id="input-total" value="120" style="width:60px; padding:5px; border-radius:8px; border:2px solid #d8b4fe; text-align:center; font-weight:bold;">
                 </div>
                 <div class="mode-card" id="card-box" onclick="selectMode('box')">
-                    <div class="mode-label"><div class="radio-circle"><div class="radio-dot"></div></div>Time Per Square</div>
-                    <div class="time-input-group"><input type="number" id="input-box" class="time-input" value="5" disabled></div>
+                    <div style="font-weight:700; color:var(--text-main);">Time Per Square</div>
+                    <input type="number" id="input-box" value="5" disabled style="width:60px; padding:5px; border-radius:8px; border:2px solid #d8b4fe; text-align:center; font-weight:bold;">
                 </div>
             </div>
         </div>
 
-        <div style="margin-bottom: 20px; text-align: center;">
-            <label style="font-weight:700; display:block; margin-bottom:15px; color:var(--text-main); font-size:1.2rem;">Pick Your Numbers</label>
+        <div style="margin-bottom: 15px; text-align: center;">
+            <label style="font-weight:700; display:block; margin-bottom:10px; color:var(--text-main);">Pick Your Numbers</label>
             <div class="chip-container" id="num-selector"></div>
-            <div style="margin-top:15px;">
-                <button class="btn-text" onclick="selectAll(true)">Select All</button> • 
-                <button class="btn-text" onclick="selectAll(false)">Clear All</button>
+            <div style="margin-top:10px;">
+                <button class="btn-secondary" onclick="selectAll(true)" style="width:auto; padding:5px 10px; font-size:0.9rem;">Select All</button>
+                <button class="btn-secondary" onclick="selectAll(false)" style="width:auto; padding:5px 10px; font-size:0.9rem;">Clear</button>
             </div>
         </div>
 
@@ -286,7 +182,7 @@
             <div class="top-bar">
                 <button class="icon-btn" onclick="showExitModal()">🏠</button>
                 <div style="text-align:center;">
-                    <div class="timer-label" id="timerLabel">TOTAL LEFT</div>
+                    <div style="font-size:0.7rem; font-weight:700; color:#a855f7;">TIME LEFT</div>
                     <div class="timer-val" id="timerDisplay">0:00</div>
                 </div>
                 <button class="icon-btn" onclick="togglePause()">⏸️</button>
@@ -314,169 +210,76 @@
             <button class="key skip" onclick="press('SKIP')">SKIP</button>
             <button class="key" onclick="press('9')">9</button>
             <button class="key" onclick="press('0')">0</button>
-            <button class="key finish" onclick="checkCompletion()">✨ FINISH ✨</button>
+            <button class="key finish" onclick="checkCompletion()">FINISH</button>
         </div>
     </div>
 
-    <div id="alert-overlay" class="overlay">
-        <div class="modal">
-            <div style="font-size:3rem; margin-bottom:10px;">🦄</div>
-            <h2 class="modal-title">Oops!</h2>
-            <p class="modal-text" id="alert-msg">Something went wrong.</p>
-            <button class="btn-primary" onclick="closeAlert()">Okay!</button>
-        </div>
-    </div>
-
-    <div id="confirm-overlay" class="overlay">
-        <div class="modal">
-            <div style="font-size:3rem; margin-bottom:10px;">🏠</div>
-            <h2 class="modal-title">Go Home?</h2>
-            <p class="modal-text" id="confirm-msg">You will lose your progress!</p>
-            <button class="btn-primary" onclick="confirmAction(true)">Yes, Go Home</button>
-            <button class="btn-secondary" onclick="confirmAction(false)">No, Stay Here</button>
-        </div>
-    </div>
-
-    <div id="pause-overlay" class="overlay">
-        <h1 class="glitter-text" style="font-size:3.5rem; margin:0;">PAUSED</h1>
-        <div style="font-size:3rem; margin-bottom:20px;">😴</div>
-        <button class="btn-primary" style="max-width:200px;" onclick="togglePause()">WAKE UP!</button>
-    </div>
-
+    <div id="alert-overlay" class="overlay"><div class="modal"><h2>Oops!</h2><p id="alert-msg"></p><button class="btn-primary" onclick="closeAlert()">Okay!</button></div></div>
+    <div id="confirm-overlay" class="overlay"><div class="modal"><h2>Go Home?</h2><p>Progress will be lost!</p><button class="btn-primary" onclick="confirmAction(true)">Yes, Go Home</button><button class="btn-secondary" onclick="confirmAction(false)">No, Stay Here</button></div></div>
+    <div id="pause-overlay" class="overlay"><div class="modal"><h1>PAUSED</h1><div style="font-size:3rem;">😴</div><button class="btn-primary" onclick="togglePause()">RESUME</button></div></div>
     <div id="result-overlay" class="overlay">
         <div class="modal" id="result-card">
-            <h2 class="glitter-text" id="res-title" style="margin:0; font-size:2.5rem;">Great Job!</h2>
-            <div id="res-score" style="font-size:4.5rem; font-weight:900; color:var(--primary); margin:10px 0; text-shadow: 3px 3px 0 #f3e8ff;">0%</div>
-            <p id="res-details" style="color:var(--text-main); font-size:1.2rem; margin-bottom:20px;"></p>
+            <h2 id="res-title">Great Job!</h2>
+            <div id="res-score" style="font-size:4rem; font-weight:900; color:var(--primary);">0%</div>
+            <p id="res-details"></p>
             <button class="btn-primary" onclick="shareResult()">📸 Share Pic</button>
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="btn-secondary" onclick="location.reload()">Play Again</button>
-                <button class="btn-secondary" style="border-color:#fda4af; color:#881337;" onclick="location.reload()">Quit</button>
-            </div>
+            <button class="btn-secondary" onclick="location.reload()">Play Again</button>
         </div>
     </div>
 
     <script>
-        // --- Variables ---
-        let currentMode = 'total';
-        let timeLimit = 120;
-        let timeRemaining = 0;
-        let timerInterval;
-        let isPaused = false;
-        let selectedCell = null;
+        let currentMode='total', timeLimit=120, timeRemaining=0, timerInterval, isPaused=false, selectedCell=null;
         
-        // --- Custom Alert Logic ---
-        function showAlert(msg) {
-            document.getElementById('alert-msg').innerText = msg;
-            document.getElementById('alert-overlay').style.display = 'flex';
-        }
-        function closeAlert() {
-            document.getElementById('alert-overlay').style.display = 'none';
-        }
-
-        // --- Custom Confirm Logic ---
-        let pendingConfirmAction = null;
-        function showConfirm(msg, callback) {
-            document.getElementById('confirm-msg').innerText = msg;
-            document.getElementById('confirm-overlay').style.display = 'flex';
-            pendingConfirmAction = callback;
-        }
-        function confirmAction(result) {
-            document.getElementById('confirm-overlay').style.display = 'none';
-            if(result && pendingConfirmAction) pendingConfirmAction();
-        }
-
-        // --- PWA Service Worker Registration ---
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker Registered'))
-                .catch(err => console.log('Service Worker Failed', err));
-        }
-
-        // --- Initialization ---
+        // Setup Numbers
         const numContainer = document.getElementById('num-selector');
-        // START UNCHECKED
         for(let i=1; i<=12; i++){
-            numContainer.innerHTML += `
-                <label>
-                    <input type="checkbox" style="display:none;" value="${i}" class="num-check">
-                    <div class="chip">${i}</div>
-                </label>
-            `;
+            numContainer.innerHTML += `<label><input type="checkbox" style="display:none;" value="${i}" class="num-check"><div class="chip">${i}</div></label>`;
         }
 
-        function selectAll(enable) {
-            document.querySelectorAll('.num-check').forEach(c => c.checked = enable);
+        function selectAll(e){ document.querySelectorAll('.num-check').forEach(c=>c.checked=e); }
+        function selectMode(m){ 
+            currentMode=m; 
+            document.getElementById('card-total').classList.toggle('selected', m==='total');
+            document.getElementById('card-box').classList.toggle('selected', m==='box');
+            document.getElementById('input-total').disabled = (m!=='total');
+            document.getElementById('input-box').disabled = (m!=='box');
         }
 
-        // --- Setup Logic ---
-        function selectMode(mode) {
-            currentMode = mode;
-            document.getElementById('card-total').classList.toggle('selected', mode === 'total');
-            document.getElementById('card-box').classList.toggle('selected', mode === 'box');
-            document.getElementById('card-total').classList.toggle('disabled', mode === 'box');
-            document.getElementById('card-box').classList.toggle('disabled', mode === 'total');
-            document.getElementById('input-total').disabled = (mode !== 'total');
-            document.getElementById('input-box').disabled = (mode !== 'box');
-        }
-
-        function startQuiz() {
+        function startQuiz(){
             const checks = document.querySelectorAll('.num-check:checked');
-            if(checks.length === 0) return showAlert("Pick a number first! 🦄");
+            if(checks.length===0) return showAlert("Pick a number first! 🦄");
             
-            // Set Time
-            if (currentMode === 'total') {
-                timeLimit = parseInt(document.getElementById('input-total').value);
-                document.getElementById('timerLabel').innerText = "TOTAL LEFT";
-            } else {
-                timeLimit = parseInt(document.getElementById('input-box').value);
-                document.getElementById('timerLabel').innerText = "BOX TIME";
-            }
+            timeLimit = parseInt(document.getElementById(currentMode==='total'?'input-total':'input-box').value);
             timeRemaining = timeLimit;
-
-            // Generate Grid
-            const rows = Array.from(checks).map(c => parseInt(c.value)).sort(() => Math.random() - 0.5);
-            const cols = [1,2,3,4,5,6,7,8,9,10,11,12].sort(() => Math.random() - 0.5);
+            
+            const rows = Array.from(checks).map(c=>parseInt(c.value)).sort(()=>Math.random()-0.5);
+            const cols = [1,2,3,4,5,6,7,8,9,10,11,12].sort(()=>Math.random()-0.5);
             
             const table = document.getElementById('mathTable');
-            let html = `<thead><tr><th>×</th>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`;
-            rows.forEach(r => {
-                html += `<tr><td>${r}</td>`;
-                cols.forEach(c => {
-                    html += `<td onclick="clickCell(this)" data-res="${r*c}" class="cell pending"></td>`;
-                });
-                html += `</tr>`;
+            let html = `<thead><tr><th>×</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+            rows.forEach(r=>{
+                html+=`<tr><td>${r}</td>`;
+                cols.forEach(c=> html+=`<td onclick="clickCell(this)" data-res="${r*c}" class="cell pending"></td>`);
+                html+=`</tr>`;
             });
-            html += `</tbody>`;
+            html+=`</tbody>`;
             table.innerHTML = html;
 
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('quiz-screen').style.display = 'flex';
-            
+            document.getElementById('setup-screen').style.display='none';
+            document.getElementById('quiz-screen').style.display='flex';
             startTimer();
             findNextCell();
         }
 
-        function showExitModal() {
-            isPaused = true; 
-            showConfirm("Go back to the start? Progress will be lost! 🦄", () => {
-                location.reload();
-            });
-        }
-
-        // --- Timer ---
-        function startTimer() {
+        function startTimer(){
             updateTimerUI();
-            timerInterval = setInterval(() => {
-                if(!isPaused && document.getElementById('confirm-overlay').style.display === 'none') {
-                    timeRemaining -= 0.1; 
-                    if(timeRemaining <= 0) {
-                        if(currentMode === 'total') finishGame(true);
+            timerInterval = setInterval(()=>{
+                if(!isPaused && document.getElementById('confirm-overlay').style.display==='none'){
+                    timeRemaining-=0.1;
+                    if(timeRemaining<=0) {
+                        if(currentMode==='total') finishGame(true);
                         else {
-                            if(selectedCell) {
-                                selectedCell.classList.add('skipped');
-                                selectedCell.innerText = '';
-                            }
+                            if(selectedCell) { selectedCell.classList.add('skipped'); selectedCell.innerText=''; }
                             findNextCell();
                         }
                     }
@@ -485,116 +288,90 @@
             }, 100);
         }
 
-        function updateTimerUI() {
-            const displayTime = Math.max(0, Math.ceil(timeRemaining));
-            if(currentMode === 'total') {
-                const m = Math.floor(displayTime / 60);
-                const s = displayTime % 60;
-                document.getElementById('timerDisplay').innerText = `${m}:${s.toString().padStart(2,'0')}`;
+        function updateTimerUI(){
+            const d = Math.max(0, Math.ceil(timeRemaining));
+            if(currentMode==='total') {
+                const m=Math.floor(d/60), s=d%60;
+                document.getElementById('timerDisplay').innerText=`${m}:${s.toString().padStart(2,'0')}`;
             } else {
-                document.getElementById('timerDisplay').innerText = displayTime;
+                document.getElementById('timerDisplay').innerText=d;
             }
-            const pct = (timeRemaining / timeLimit) * 100;
-            document.getElementById('progressBar').style.width = `${pct}%`;
+            document.getElementById('progressBar').style.width = `${(timeRemaining/timeLimit)*100}%`;
         }
 
-        function togglePause() {
-            isPaused = !isPaused;
-            document.getElementById('pause-overlay').style.display = isPaused ? 'flex' : 'none';
-        }
-
-        // --- Game Logic ---
-        function findNextCell() {
-            if(currentMode === 'box') timeRemaining = timeLimit;
-            let next = document.querySelector('.pending:not(.skipped)');
-            if(!next) next = document.querySelector('.skipped'); 
+        function findNextCell(){
+            if(currentMode==='box') timeRemaining=timeLimit;
+            let next = document.querySelector('.pending:not(.skipped)') || document.querySelector('.skipped');
             if(next) activateCell(next);
             else checkCompletion(true);
         }
 
-        function clickCell(el) {
-            if(isPaused) return;
-            activateCell(el);
-            if(currentMode === 'box') timeRemaining = timeLimit;
-        }
-
-        function activateCell(el) {
+        function clickCell(el){ if(!isPaused){ activateCell(el); if(currentMode==='box') timeRemaining=timeLimit; } }
+        
+        function activateCell(el){
             if(selectedCell) selectedCell.classList.remove('active-cell');
             selectedCell = el;
             selectedCell.classList.add('active-cell');
-            el.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'center'});
+            el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
         }
 
-        function press(key) {
+        function press(k){
             if(!selectedCell || isPaused) return;
-            if(key === 'DEL') {
-                selectedCell.innerText = '';
-            } else if(key === 'SKIP') {
-                selectedCell.classList.add('skipped');
-                selectedCell.innerText = '';
-                findNextCell();
-            } else {
-                selectedCell.innerText += key;
-                const target = selectedCell.dataset.res;
-                if(selectedCell.innerText.length >= target.length) validate(target);
+            if(k==='DEL') selectedCell.innerText='';
+            else if(k==='SKIP') { selectedCell.classList.add('skipped'); selectedCell.innerText=''; findNextCell(); }
+            else {
+                selectedCell.innerText+=k;
+                if(selectedCell.innerText.length >= selectedCell.dataset.res.length) validate(selectedCell.dataset.res);
             }
         }
 
-        function validate(target) {
-            if(selectedCell.innerText == target) {
-                selectedCell.classList.remove('active-cell', 'pending', 'skipped');
+        function validate(target){
+            if(selectedCell.innerText==target){
+                selectedCell.classList.remove('active-cell','pending','skipped');
                 selectedCell.classList.add('correct');
                 findNextCell();
             } else {
                 selectedCell.classList.add('incorrect');
-                setTimeout(() => {
-                    selectedCell.classList.remove('incorrect');
-                    selectedCell.innerText = '';
-                }, 400);
+                setTimeout(()=> { selectedCell.classList.remove('incorrect'); selectedCell.innerText=''; }, 400);
             }
         }
 
-        function checkCompletion(auto = false) {
-            const pending = document.querySelectorAll('.pending').length;
-            const skipped = document.querySelectorAll('.skipped').length;
-            if(pending === 0 && skipped === 0) finishGame();
-            else if (!auto) {
-                showConfirm(`You have ${pending + skipped} boxes left. Finish anyway?`, () => {
-                    finishGame();
-                });
-            }
+        function checkCompletion(auto=false){
+            const left = document.querySelectorAll('.pending, .skipped').length;
+            if(left===0) finishGame();
+            else if(!auto) showConfirm(`You have ${left} boxes left. Finish?`, ()=>finishGame());
         }
 
-        function finishGame(timeOut = false) {
+        function finishGame(timeout=false){
             clearInterval(timerInterval);
             const total = document.querySelectorAll('.cell').length;
             const correct = document.querySelectorAll('.correct').length;
-            const score = total > 0 ? Math.round((correct/total)*100) : 0;
-            
-            document.getElementById('result-overlay').style.display = 'flex';
-            document.getElementById('res-title').innerText = timeOut ? "Time's Up!" : (score === 100 ? "Perfect Score! 🦄" : "Amazing Job!");
+            const score = total>0 ? Math.round((correct/total)*100) : 0;
+            document.getElementById('result-overlay').style.display='flex';
+            document.getElementById('res-title').innerText = timeout ? "Time's Up!" : "Great Job!";
             document.getElementById('res-score').innerText = `${score}%`;
-            document.getElementById('res-details').innerText = `You got ${correct} out of ${total} correct!`;
+            document.getElementById('res-details').innerText = `${correct} / ${total} Correct`;
         }
 
+        // --- Modals & Utils ---
+        function togglePause(){ isPaused=!isPaused; document.getElementById('pause-overlay').style.display=isPaused?'flex':'none'; }
+        function showAlert(m){ document.getElementById('alert-msg').innerText=m; document.getElementById('alert-overlay').style.display='flex'; }
+        function closeAlert(){ document.getElementById('alert-overlay').style.display='none'; }
+        
+        let confirmCb;
+        function showExitModal(){ showConfirm("Go back home?", ()=>location.reload()); }
+        function showConfirm(m, cb){ document.getElementById('confirm-overlay').style.display='flex'; confirmCb=cb; }
+        function confirmAction(y){ document.getElementById('confirm-overlay').style.display='none'; if(y&&confirmCb) confirmCb(); }
+        
         async function shareResult() {
-            const card = document.getElementById('result-card');
             try {
-                const canvas = await html2canvas(card, { scale: 2, backgroundColor: null });
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                const file = new File([blob], 'mya-math-score.png', { type: 'image/png' });
-
-                if (navigator.share && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file] });
-                } else {
-                    const link = document.createElement('a');
-                    link.download = 'mya-math-score.png';
-                    link.href = canvas.toDataURL();
-                    link.click();
-                }
-            } catch (err) {
-                showAlert("Could not create image. Sharing not supported.");
-            }
+                const canvas = await html2canvas(document.getElementById('result-card'), {scale:2, backgroundColor:null});
+                canvas.toBlob(blob => {
+                    const file = new File([blob], 'score.png', {type:'image/png'});
+                    if(navigator.share) navigator.share({files:[file]});
+                    else { const a=document.createElement('a'); a.download='score.png'; a.href=canvas.toDataURL(); a.click(); }
+                });
+            } catch(e){ showAlert("Can't share image"); }
         }
     </script>
 </body>
